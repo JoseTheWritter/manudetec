@@ -243,3 +243,4 @@ Este proyecto utiliza el dataset MVTec AD, el cual está licenciado bajo:
 
 Copyright 2019 MVTec Software GmbH
 
+Para poder ver la licencia de nuestro proyecto hacer referencia a [LICENSE.md](./LICENSE.md)
