@@ -1,0 +1,36 @@
+# ==========================================
+# CONFIGURACIÓN DE REPOSITORIOS
+# ==========================================
+jupyter
+
+# Esto le dice a pip dónde buscar las versiones +cu118
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+# ==========================================
+# 1. CORE DE IA (Versiones de tu imagen)
+# ==========================================
+# Estas versiones requieren Python 3.11
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+torchaudio==2.7.1+cu118
+
+# ==========================================
+# 2. PROCESAMIENTO DE IMÁGENES
+# ==========================================
+numpy==1.26.4
+# Usamos headless para servidor, cambia a 'opencv-python' si necesitas GUI local
+opencv-python-headless==4.9.0.80
+Pillow==10.3.0
+
+# ==========================================
+# 3. BACKEND WEB
+# ==========================================
+Flask==3.0.3
+flask-cors==4.0.1
+Werkzeug==3.0.3
+
+# ==========================================
+# 4. CIENCIA DE DATOS
+# ==========================================
+scikit-learn==1.5.0
+matplotlib==3.8.4

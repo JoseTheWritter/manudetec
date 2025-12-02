@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto manuDetection</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen p-6">
+
+    <div class="container max-w-7xl mx-auto">
+        
+        <!-- ========================================= -->
+        <!-- ZONA 0: ENCABEZADO DEL PROYECTO           -->
+        <!-- ========================================= -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Proyecto manuDetection</h1>
+            <p class="text-xl text-gray-600 mt-2">Sistema Integral de Detección de Anomalías Industriales</p>
+        </header>
+
+        <!-- LAYOUT PRINCIPAL: GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- ========================================= -->
+            <!-- ZONA 1: PANEL SUPERIOR (Ancho Completo)   -->
+            <!-- Contiene: Selector de Categoría y Galería -->
+            <!-- ========================================= -->
+            <div class="lg:col-span-2 card p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6">
+                    
+                    <!-- 1.1 Selector de Categoría -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700">Categoría de modelo</h3>
+                        <p class="text-xs text-gray-500 mb-2">Selecciona la categoría entrenada que se usará en /predict.</p>
+                        <select id="category-select" class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <option value="">Cargando categorías...</option>
+                        </select>
+                    </div>
+
+                    <!-- 1.2 Galería del Dataset -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">Galería del Dataset</h3>
+                                <p class="text-xs text-gray-500">Carpeta base: <span id="gallery-root-path" class="font-medium">Cargando...</span></p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="gallery-back-button" class="text-sm px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">⟵ Subir</button>
+                                <button id="gallery-refresh-button" class="text-sm px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">↻ Actualizar</button>
+                            </div>
+                        </div>
+
+                        <!-- Contenedor de la Galería -->
+                        <div class="gallery-panel p-4 space-y-3">
+                            <!-- Breadcrumbs (Navegación) -->
+                            <div id="gallery-breadcrumb" class="flex flex-wrap gap-2 text-xs text-indigo-600"></div>
+                            <p id="gallery-status" class="text-sm text-gray-500">Cargando galería...</p>
+                            <div id="gallery-error" class="hidden text-sm text-red-500"></div>
+
+                            <!-- Lista de Carpetas -->
+                            <div class="space-y-2">
+                                <p class="text-xs uppercase font-semibold text-gray-500">Carpetas</p>
+                                <div id="gallery-folders" class="gallery-folders flex flex-wrap gap-2"></div>
+                                <p id="gallery-folders-empty" class="text-xs text-gray-400 hidden">No hay subcarpetas disponibles.</p>
+                            </div>
+
+                            <!-- Rejilla de Imágenes -->
+                            <div class="space-y-2">
+                                <p class="text-xs uppercase font-semibold text-gray-500">Imágenes (arrastra hacia el área de inspección)</p>
+                                <div id="gallery-images" class="gallery-grid"></div>
+                                <p id="gallery-images-empty" class="text-xs text-gray-400 hidden">No hay imágenes en esta carpeta.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- ZONA 2: ÁREA DE INSPECCIÓN (Columna Izq)  -->
+            <!-- Contiene: Zona Drop y Vista Previa        -->
+            <!-- ========================================= -->
+            <div class="card p-6 space-y-6">
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-700">1. Cargar Producto a Inspeccionar</h2>
+                    <p class="text-gray-500 text-sm mt-1">Explora el dataset o arrastra una imagen desde tu equipo hacia el área de inspección.</p>
+                </div>
+                
+                <!-- Zona de Arrastrar y Soltar -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Área de Inspección (Arrastra aquí)</h3>
+                    <div id="drop-zone" class="p-8 text-center rounded-lg cursor-pointer">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="True">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <p id="drop-status" class="mt-2 text-gray-600">
+                            Haz clic para seleccionar o arrastra una imagen desde tu equipo o la galería.
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">Formato permitido: PNG, JPG, BMP (máx. 10MB)</p>
+                        <div id="drop-spinner" class="spinner mx-auto mt-4 hidden"></div>
+                        <input id="file-input" type="file" class="hidden" accept="image/png, image/jpeg, image/bmp">
+                    </div>
+                </div>
+
+                <!-- Vista Previa de Imagen Cargada -->
+                <div id="preview-container" class="hidden">
+                    <h3 class="font-semibold text-gray-700 mb-2">Vista Previa:</h3>
+                    <img id="image-preview" src="" alt="Vista previa de la imagen" class="w-full rounded-lg object-contain" style="max-height: 300px; background: #eee;">
+                    <p id="file-name" class="text-sm text-gray-500 mt-2 text-center"></p>
+                </div>
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- ZONA 3: RESULTADOS (Columna Derecha)      -->
+            <!-- Contiene: Métricas y Mapa de Calor        -->
+            <!-- ========================================= -->
+            <div class="card p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">2. Resultados del Análisis</h2>
+
+                <!-- Estado Inicial (Sin resultados) -->
+                <div id="results-placeholder" class="text-center text-gray-500 pt-16">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-4">Los resultados de la inspección aparecerán aquí.</p>
+                </div>
+
+                <!-- Contenedor de Resultados (Se muestra tras análisis) -->
+                <div id="results-container" class="hidden space-y-4">
+                    
+                    <!-- Obj 1: Estado de Detección -->
+                    <div id="result-box-deteccion" class="result-box rounded-lg">
+                        <h3 id="result-title-deteccion" class="result-title"></h3>
+                        <p id="result-text-deteccion" class="mt-1"></p>
+                    </div>
+
+                    <!-- Obj 2: Clasificación -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase">Objetivo 2: Clasificación</h4>
+                        <p id="result-text-clasificacion" class="text-lg font-medium text-gray-800">--</p>
+                    </div>
+
+                    <!-- Obj 4: Cuantificación -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase">Objetivo 4: Cuantificación (Severidad)</h4>
+                        <p id="result-text-cuantificacion" class="text-lg font-medium text-gray-800">--</p>
+                    </div>
+
+                    <!-- Obj 3: Visualización (Mapa de Calor) -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase">Objetivo 3: Localización (Mapa de Calor)</h4>
+                        <img id="result-image-localizacion" src="" alt="Resultado del análisis" class="w-full rounded-lg object-contain mt-2" style="max-height: 300px; background: #eee;">
+                    </div>
+
+                    <!-- Botón Reiniciar -->
+                    <button id="reset-button" class="w-full text-center py-3 bg-gray-100 text-gray-600 font-medium rounded-lg hover:bg-gray-200 transition">
+                        Inspeccionar otro producto
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- LOGICA DE LA APLICACIÓN (JAVASCRIPT)      -->
+    <!-- ========================================= -->
+    <script>
+        // Referencias al DOM
+        const dropZone = document.getElementById('drop-zone');
+        const dropStatusEl = document.getElementById('drop-status');
+        const dropSpinnerEl = document.getElementById('drop-spinner');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const fileNameEl = document.getElementById('file-name');
+        
+        const resultsPlaceholder = document.getElementById('results-placeholder');
+        const resultsContainer = document.getElementById('results-container');
+        const resetButton = document.getElementById('reset-button');
+        
+        // Elementos de Resultados
+        const resBoxDeteccion = document.getElementById('result-box-deteccion');
+        const resTitleDeteccion = document.getElementById('result-title-deteccion');
+        const resTextDeteccion = document.getElementById('result-text-deteccion');
+        const resTextClasificacion = document.getElementById('result-text-clasificacion');
+        const resTextCuantificacion = document.getElementById('result-text-cuantificacion');
+        const resImageLocalizacion = document.getElementById('result-image-localizacion');
+        const categorySelect = document.getElementById('category-select');
+
+        // Elementos de Galería
+        const galleryFoldersEl = document.getElementById('gallery-folders');
+        const galleryImagesEl = document.getElementById('gallery-images');
+        const galleryStatusEl = document.getElementById('gallery-status');
+        const galleryErrorEl = document.getElementById('gallery-error');
+        const galleryBreadcrumbEl = document.getElementById('gallery-breadcrumb');
+        const galleryFoldersEmptyEl = document.getElementById('gallery-folders-empty');
+        const galleryImagesEmptyEl = document.getElementById('gallery-images-empty');
+        const galleryBackButton = document.getElementById('gallery-back-button');
+        const galleryRefreshButton = document.getElementById('gallery-refresh-button');
+        const galleryRootPathEl = document.getElementById('gallery-root-path');
+
+        // Configuración de URLs (Detecta localhost)
+        const backendBase = (() => {
+            const protocol = window.location?.protocol;
+            const hostname = window.location?.hostname;
+            if (protocol && protocol.startsWith('http') && hostname) {
+                return `${protocol}//${hostname}:5000`;
+            }
+            return 'http://127.0.0.1:5000';
+        })();
+        const API_ENDPOINT = `${backendBase}/predict`;
+        const DATASET_LIST_ENDPOINT = `${backendBase}/dataset/list`;
+        const DATASET_IMAGE_ENDPOINT = `${backendBase}/dataset/image`;
+        const MODELS_CATEGORIES_ENDPOINT = `${backendBase}/models/categories`;
+
+        let currentFile = null;
+        let currentDatasetSubpath = '';
+        let isAnalyzing = false;
+        const defaultDropMessage = 'Haz clic para seleccionar o arrastra una imagen desde tu equipo o la galería.';
+        let galleryRootLabel = 'Cargando...';
+
+        // --- GESTIÓN DE LA GALERÍA ---
+        
+        galleryBackButton.addEventListener('click', () => {
+            if (!currentDatasetSubpath) return;
+            const parts = currentDatasetSubpath.split('/').filter(Boolean);
+            parts.pop();
+            loadDatasetGallery(parts.join('/'));
+        });
+
+        galleryRefreshButton.addEventListener('click', () => loadDatasetGallery(currentDatasetSubpath));
+
+        categorySelect.addEventListener('change', () => {
+            loadDatasetGallery(''); 
+        });
+
+        // Inicialización
+        loadCategories().then(() => {
+            loadDatasetGallery('');
+        });
+
+        async function loadDatasetGallery(subpath = '') {
+            galleryStatusEl.textContent = 'Cargando galería...';
+            galleryErrorEl.classList.add('hidden');
+            galleryFoldersEl.innerHTML = '';
+            galleryImagesEl.innerHTML = '';
+            galleryFoldersEmptyEl.classList.add('hidden');
+            galleryImagesEmptyEl.classList.add('hidden');
+            galleryBackButton.disabled = !subpath;
+
+            const selectedCategory = categorySelect.value;
+            if (!selectedCategory) {
+                galleryStatusEl.textContent = 'Selecciona una categoría para ver la galería.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${DATASET_LIST_ENDPOINT}?category=${encodeURIComponent(selectedCategory)}&subpath=${encodeURIComponent(subpath)}`);
+                const data = await response.json().catch(() => null);
+                if (!response.ok) throw new Error(`Error: ${data?.error || response.status}`);
+                
+                if (data?.root) {
+                    galleryRootLabel = data.root;
+                    if (galleryRootPathEl) galleryRootPathEl.textContent = data.root;
+                }
+                currentDatasetSubpath = data.current || '';
+                galleryStatusEl.textContent = currentDatasetSubpath ? `Carpeta actual: ${currentDatasetSubpath}` : 'Carpeta raíz';
+                renderGalleryBreadcrumb(data.breadcrumbs || []);
+                renderGalleryFolders(data.directories || []);
+                renderGalleryImages(data.files || []);
+            } catch (error) {
+                console.error('Error galería:', error);
+                galleryErrorEl.textContent = error.message;
+                galleryErrorEl.classList.remove('hidden');
+                galleryStatusEl.textContent = 'Error de conexión.';
+            }
+        }
+
+        async function loadCategories() {
+            categorySelect.innerHTML = '<option value=\"\">Cargando...</option>';
+            try {
+                const response = await fetch(MODELS_CATEGORIES_ENDPOINT);
+                const data = await response.json();
+                const categories = data.categories || [];
+                
+                categorySelect.innerHTML = '';
+                if (!categories.length) {
+                    categorySelect.innerHTML = '<option value=\"\">Sin modelos</option>';
+                    categorySelect.disabled = true;
+                    return;
+                }
+                
+                categorySelect.disabled = false;
+                categories.forEach((cat) => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.textContent = cat;
+                    categorySelect.appendChild(opt);
+                });
+                
+                if (data.default && categories.includes(data.default)) {
+                    categorySelect.value = data.default;
+                } else {
+                    categorySelect.value = categories[0];
+                }
+            } catch (err) {
+                console.error('Error categorías:', err);
+                categorySelect.innerHTML = '<option value=\"\">Error</option>';
+                categorySelect.disabled = true;
+            }
+        }
+
+        function renderGalleryBreadcrumb(breadcrumbs) {
+            galleryBreadcrumbEl.innerHTML = '';
+            const rootLabel = galleryRootLabel || 'Raíz'; 
+            
+            // Root Link
+            if (!breadcrumbs.length) {
+                const rootTag = document.createElement('span');
+                rootTag.textContent = rootLabel;
+                rootTag.className = 'font-semibold';
+                galleryBreadcrumbEl.appendChild(rootTag);
+                return;
+            }
+
+            const rootLink = document.createElement('button');
+            rootLink.textContent = rootLabel;
+            rootLink.className = 'text-indigo-600 underline';
+            rootLink.addEventListener('click', () => loadDatasetGallery(''));
+            galleryBreadcrumbEl.appendChild(rootLink);
+
+            breadcrumbs.forEach((crumb) => {
+                const separator = document.createElement('span');
+                separator.textContent = ' / ';
+                galleryBreadcrumbEl.appendChild(separator);
+
+                const isLast = crumb.relpath === currentDatasetSubpath;
+                const crumbEl = document.createElement(isLast ? 'span' : 'button');
+                crumbEl.textContent = crumb.label;
+                crumbEl.className = isLast ? 'font-semibold' : 'text-indigo-600 underline';
+                if (!isLast) {
+                    crumbEl.addEventListener('click', () => loadDatasetGallery(crumb.relpath));
+                }
+                galleryBreadcrumbEl.appendChild(crumbEl);
+            });
+        }
+
+        function renderGalleryFolders(folders) {
+            if (!folders.length) {
+                galleryFoldersEmptyEl.classList.remove('hidden');
+                return;
+            }
+            folders.forEach((folder) => {
+                const btn = document.createElement('button');
+                btn.textContent = folder.name;
+                btn.addEventListener('click', () => loadDatasetGallery(folder.relpath));
+                galleryFoldersEl.appendChild(btn);
+            });
+        }
+
+        function renderGalleryImages(images) {
+            if (!images.length) {
+                galleryImagesEmptyEl.classList.remove('hidden');
+                return;
+            }
+            const selectedCategory = categorySelect.value;
+
+            images.forEach((file) => {
+                const card = document.createElement('div');
+                card.className = 'gallery-thumb';
+                card.draggable = true;
+                
+                // Drag & Drop Data
+                card.addEventListener('dragstart', (event) => {
+                    event.dataTransfer.setData('application/x-dataset-path', file.relpath);
+                    event.dataTransfer.setData('text/plain', file.relpath);
+                    event.dataTransfer.effectAllowed = 'copy';
+                });
+                card.addEventListener('dblclick', () => handleDatasetImage(file.relpath));
+
+                const img = document.createElement('img');
+                img.src = `${DATASET_IMAGE_ENDPOINT}?category=${encodeURIComponent(selectedCategory)}&path=${encodeURIComponent(file.relpath)}`;
+                img.alt = file.name;
+                img.onerror = () => { img.src = 'https://placehold.co/110x80/eee/999?text=Error'; };
+
+                const caption = document.createElement('p');
+                caption.textContent = file.name;
+
+                card.appendChild(img);
+                card.appendChild(caption);
+                galleryImagesEl.appendChild(card);
+            });
+        }
+
+        // --- GESTIÓN DE CARGA DE IMÁGENES ---
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            // Detectar si viene de la galería interna o del sistema operativo
+            const datasetPath = e.dataTransfer.getData('application/x-dataset-path');
+            if (datasetPath) {
+                await handleDatasetImage(datasetPath);
+                return;
+            }
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleLocalFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleLocalFile(e.target.files[0]);
+            }
+        });
+
+        function handleLocalFile(file) {
+            if (!file.type.startsWith('image/') && !/\.(png|jpe?g|bmp)$/i.test(file.name)) {
+                alert('Formato no soportado. Usa PNG, JPG o BMP.');
+                return;
+            }
+            handlePreparedFile(file, file.name);
+        }
+
+        async function handleDatasetImage(relpath) {
+            try {
+                setLoading(true, 'Descargando del dataset...');
+                const selectedCategory = categorySelect.value;
+                if (!selectedCategory) throw new Error('Sin categoría seleccionada.');
+
+                const response = await fetch(`${DATASET_IMAGE_ENDPOINT}?category=${encodeURIComponent(selectedCategory)}&path=${encodeURIComponent(relpath)}`);
+                if (!response.ok) throw new Error('Error descargando imagen.');
+                
+                const blob = await response.blob();
+                const fileName = relpath.split('/').pop() || 'dataset.png';
+                const datasetFile = new File([blob], fileName, { type: blob.type });
+                handlePreparedFile(datasetFile, `Dataset · ${relpath}`);
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+                setLoading(false);
+            }
+        }
+
+        function handlePreparedFile(file, labelText) {
+            currentFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+                fileNameEl.textContent = labelText || file.name;
+                startAnalysis();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- LÓGICA DE ANÁLISIS Y RESULTADOS ---
+
+        async function startAnalysis() {
+            if (!currentFile || isAnalyzing) return;
+            isAnalyzing = true;
+            setLoading(true, 'Analizando imagen...');
+            resultsPlaceholder.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('image', currentFile);
+            if (categorySelect.value) {
+                formData.append('category', categorySelect.value);
+            }
+
+            try {
+                const response = await fetch(API_ENDPOINT, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error(error);
+                alert('Error al analizar la imagen. Verifica que el backend esté corriendo.');
+                resetUI();
+            } finally {
+                setLoading(false);
+                isAnalyzing = false;
+            }
+        }
+
+        function setLoading(isLoading, message) {
+            if (isLoading) {
+                dropZone.classList.add('opacity-60', 'pointer-events-none');
+                dropSpinnerEl.classList.remove('hidden');
+                dropStatusEl.textContent = message;
+            } else {
+                dropZone.classList.remove('opacity-60', 'pointer-events-none');
+                dropSpinnerEl.classList.add('hidden');
+                dropStatusEl.textContent = defaultDropMessage;
+            }
+        }
+
+        function displayResults(data) {
+            resultsContainer.classList.remove('hidden');
+            const isAnomaly = data.objetivo1_deteccion;
+
+            if (isAnomaly) {
+                resBoxDeteccion.className = 'result-box rounded-lg result-box-defect';
+                resTitleDeteccion.className = 'result-title result-title-defect';
+                resTitleDeteccion.textContent = '¡DEFECTO DETECTADO!';
+                resTextDeteccion.textContent = `Anomalía encontrada (Error: ${data.debug_error.toFixed(5)} > Umbral: ${data.debug_threshold.toFixed(5)})`;
+            } else {
+                resBoxDeteccion.className = 'result-box rounded-lg result-box-good';
+                resTitleDeteccion.className = 'result-title result-title-good';
+                resTitleDeteccion.textContent = 'Producto sin Defecto';
+                resTextDeteccion.textContent = `Inspección aprobada (Error: ${data.debug_error.toFixed(5)} <= Umbral: ${data.debug_threshold.toFixed(5)})`;
+            }
+
+            resTextClasificacion.textContent = data.objetivo2_clasificacion;
+            resTextCuantificacion.textContent = data.objetivo4_cuantificacion_area;
+            resImageLocalizacion.src = data.objetivo3_localizacion_b64;
+        }
+
+        resetButton.addEventListener('click', resetUI);
+
+        function resetUI() {
+            currentFile = null;
+            isAnalyzing = false;
+            fileInput.value = null;
+            previewContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            resultsPlaceholder.classList.remove('hidden');
+            setLoading(false);
+            imagePreview.src = '';
+            resImageLocalizacion.src = '';
+        }
+    </script>
+</body>
+</html>

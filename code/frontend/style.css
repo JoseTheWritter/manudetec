@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* --- ESTILOS GENERALES --- */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+}
+
+/* --- COMPONENTES DE TARJETA Y BOTONES --- */
+.card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover { background-color: #4338ca; }
+.btn-primary:disabled { background-color: #a5b4fc; cursor: not-allowed; }
+
+/* --- ZONA DE ARRASTRAR Y SOLTAR (DROPZONE) --- */
+#drop-zone {
+    border: 2px dashed #9ca3af;
+    background-color: #f9fafb;
+    transition: background-color 0.3s;
+}
+
+#drop-zone.dragover {
+    background-color: #e0e7ff;
+    border-color: #4f46e5;
+}
+
+/* --- SPINNER DE CARGA --- */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+#drop-zone .spinner {
+     border-top: 4px solid #4f46e5;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- CAJAS DE RESULTADOS (VERDE/ROJO) --- */
+.result-box {
+    border-left: 4px solid;
+    padding: 1rem;
+}
+
+.result-box-good {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+.result-box-defect {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.result-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.result-title-good { color: #059669; }
+.result-title-defect { color: #dc2626; }
+
+/* --- ESTILOS DE LA GALERÍA (PANEL SUPERIOR) --- */
+.gallery-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: #f9fafb;
+    max-height: 420px; /* Altura fija para scroll */
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.gallery-panel::-webkit-scrollbar { width: 6px; }
+.gallery-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(79, 70, 229, 0.4);
+    border-radius: 9999px;
+}
+
+.gallery-folders button {
+    border-radius: 9999px;
+    border: 1px solid #e5e7eb;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.gallery-folders button:hover {
+    background-color: #e0e7ff;
+    border-color: #c7d2fe;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.75rem;
+}
+
+.gallery-thumb {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: white;
+    padding: 0.5rem;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-thumb:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-thumb img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    pointer-events: none;
+}
+
+.gallery-thumb p {
+    font-size: 0.75rem;
+    margin-top: 0.35rem;
+    color: #4b5563;
+}
