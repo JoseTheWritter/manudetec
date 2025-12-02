@@ -111,7 +111,7 @@ CC235-TP-TF-2025-1/
 
 ## Tecnologías Utilizadas
 
-### Backend (Python 3.8+)
+### Backend (Python 3.11+)
 - **PyTorch 2.x:** Framework de deep learning para entrenamiento e inferencia
 - **Torchvision:** Modelos preentrenados (VGG16) y transformaciones
 - **OpenCV (cv2):** Procesamiento de imágenes y generación de mapas de calor
