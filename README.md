@@ -193,7 +193,7 @@ El sistema representa un habilitador tecnológico para manufactura inteligente 4
 
 ```bash
 # Clonar el repositorio
-git clone [https://github.com/usuario/CC235-TP-TF-2025-1.git](https://github.com/JoseTheWritter/CC235-TP-TF-2025-2.git)
+git clone https://github.com/JoseTheWritter/CC235-TP-TF-2025-2.git
 
 cd CC235-TP-TF-2025-2
 
